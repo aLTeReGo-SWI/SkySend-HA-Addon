@@ -34,6 +34,17 @@ options:
     - file
     - note
   extra_env: []
+  oidc_enabled: false
+  oidc_provider: generic
+  oidc_issuer: ""
+  oidc_client_id: ""
+  oidc_client_secret: ""
+  oidc_protect_files: true
+  oidc_protect_notes: true
+  oidc_redirect_uri: ""
+  oidc_session_secret: ""
+  oidc_scopes: "openid profile email"
+  oidc_session_duration: 86400
 schema:
   ssl: bool
   certfile: str
@@ -47,3 +58,14 @@ schema:
     - "list(file|note)"
   extra_env:
     - "str"
+  oidc_enabled: bool
+  oidc_provider: "list(generic|pocketid|authentik|keycloak)"
+  oidc_issuer: str?
+  oidc_client_id: str?
+  oidc_client_secret: password?
+  oidc_protect_files: bool
+  oidc_protect_notes: bool
+  oidc_redirect_uri: str?
+  oidc_session_secret: password?
+  oidc_scopes: str
+  oidc_session_duration: int
