@@ -43,6 +43,7 @@ schema:
   pgid: int
   tz: str
   file_max_size: str
-  enabled_services: "list(file|note)"
+  enabled_services:
+    - "list(file|note)"
   extra_env:
     - "str"
