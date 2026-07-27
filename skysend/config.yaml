@@ -1,0 +1,48 @@
+---
+name: "SkySend"
+version: "2.11.3"
+slug: "skysend"
+description: "End-to-end encrypted, self-hostable file and note sharing service, served over HTTPS using Home Assistant's own SSL certificate"
+url: "https://github.com/Skyfay/SkySend"
+arch:
+  - amd64
+  - aarch64
+init: true
+startup: services
+boot: auto
+hassio_api: false
+homeassistant_api: false
+ingress: false
+ports:
+  3333/tcp: 3333
+ports_description:
+  3333/tcp: "SkySend HTTPS web UI (terminated with the Home Assistant SSL certificate). Change the host port from the add-on's Info tab (Network section) if needed."
+webui: "https://[HOST]:[PORT:3333]"
+map:
+  - ssl:ro
+  - share:rw
+options:
+  ssl: true
+  certfile: fullchain.pem
+  keyfile: privkey.pem
+  base_url: ""
+  puid: 1001
+  pgid: 1001
+  tz: "Etc/UTC"
+  file_max_size: "2GB"
+  enabled_services:
+    - file
+    - note
+  extra_env: []
+schema:
+  ssl: bool
+  certfile: str
+  keyfile: str
+  base_url: str?
+  puid: int
+  pgid: int
+  tz: str
+  file_max_size: str
+  enabled_services: "list(file|note)"
+  extra_env:
+    - "str"
