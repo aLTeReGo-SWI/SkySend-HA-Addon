@@ -1,0 +1,111 @@
+configuration:
+  oidc_enabled:
+    name: "Enable OIDC / SSO"
+    description: >-
+      Restrict who can upload files/notes by requiring sign-in through an OpenID
+      Connect provider (e.g. Microsoft Entra ID, Authentik, Keycloak, PocketID).
+      Downloads always stay public - OIDC only gates uploads.
+
+
+      HOW TO CREATE THE ENTRA ID (AZURE AD) APP REGISTRATION FOR SKYSEND:
+
+      1. Go to https://entra.microsoft.com (or Azure Portal > Microsoft Entra ID)
+      > App registrations > New registration.
+
+      2. Name: "SkySend" (or anything you like).
+
+      3. Supported account types: "Accounts in this organizational directory
+      only" (single tenant), unless you specifically need multi-tenant.
+
+      4. Redirect URI: platform = "Web", value =
+      "https://<your-skysend-base_url>/auth/callback" - this MUST exactly match
+      the 'base_url' option below plus "/auth/callback" (e.g.
+      https://homeassistant.local:3333/auth/callback), unless you set
+      'oidc_redirect_uri' below to something else.
+
+      5. Click Register.
+
+      6. On the Overview page, copy the "Application (client) ID" -> paste
+      into 'oidc_client_id' below. Copy the "Directory (tenant) ID" - you need
+      it for 'oidc_issuer' below.
+
+      7. Go to "Certificates & secrets" > "Client secrets" > "New client
+      secret". Add a description and expiry, click Add, then IMMEDIATELY copy
+      the secret's "Value" column (not the Secret ID) -> paste into
+      'oidc_client_secret' below. It cannot be viewed again after you leave
+      the page.
+
+      8. (Optional but recommended) Go to "API permissions" > "Grant admin
+      consent for <tenant>" so users aren't prompted to individually consent
+      to the basic openid/profile/email scopes.
+
+      9. Set 'oidc_provider' to "generic", 'oidc_issuer' to
+      "https://login.microsoftonline.com/<Directory (tenant) ID>/v2.0", and
+      leave 'oidc_scopes' as the default "openid profile email".
+
+      Full field-by-field reference is also in this add-on's Documentation tab.
+    required: false
+  oidc_provider:
+    name: "OIDC provider preset"
+    description: >-
+      Controls which token claims are used for the display name. Use "generic"
+      for Microsoft Entra ID (Azure AD) - there is no dedicated Entra preset.
+      Use "pocketid", "authentik", or "keycloak" only if that's your actual
+      provider.
+    required: false
+  oidc_issuer:
+    name: "OIDC issuer URL"
+    description: >-
+      For Entra ID: "https://login.microsoftonline.com/<Directory (tenant)
+      ID>/v2.0" - find the Directory (tenant) ID on your App registration's
+      Overview page in the Entra admin center. All OIDC endpoints (authorize,
+      token, JWKS) are discovered automatically from this URL, so no other
+      Entra endpoint URLs need to be entered anywhere.
+    required: false
+  oidc_client_id:
+    name: "OIDC client ID"
+    description: >-
+      The "Application (client) ID" shown on your Entra ID App registration's
+      Overview page (a GUID).
+    required: false
+  oidc_client_secret:
+    name: "OIDC client secret"
+    description: >-
+      The client secret VALUE (not the Secret ID) from Entra ID > your App
+      registration > Certificates & secrets > New client secret. Entra only
+      shows this value once, immediately after creation - if you lose it,
+      create a new client secret and update this field.
+    required: false
+  oidc_redirect_uri:
+    name: "OIDC redirect URI override"
+    description: >-
+      Leave blank to use the default "{base_url}/auth/callback". Only set this
+      if SkySend is served under a different externally-visible URL/sub-path
+      than 'base_url', and register the SAME value as a Redirect URI on the
+      Entra ID App registration (Authentication tab).
+    required: false
+  oidc_protect_files:
+    name: "Require login for file uploads"
+    description: "Require OIDC sign-in before a user can upload files. Downloads remain public regardless."
+    required: false
+  oidc_protect_notes:
+    name: "Require login for note creation"
+    description: "Require OIDC sign-in before a user can create notes. Viewing notes remains public regardless."
+    required: false
+  oidc_scopes:
+    name: "OIDC scopes"
+    description: "Space-separated OIDC scopes to request. The default \"openid profile email\" works with Entra ID out of the box."
+    required: false
+  oidc_session_secret:
+    name: "OIDC session secret"
+    description: >-
+      Secret used to sign session JWT cookies. Leave blank to auto-generate a
+      random one at every restart (this logs everyone out on each restart).
+      Set a fixed value of at least 32 characters (e.g. generate on any
+      machine with: openssl rand -base64 48) to keep sessions persistent
+      across add-on restarts.
+    required: false
+  oidc_session_duration:
+    name: "OIDC session duration (seconds)"
+    description: "How long a signed-in session lasts before requiring login again. Default 86400 = 24 hours."
+    required: false
