@@ -74,9 +74,15 @@ done < "$EXTRA_ENV_FILE"
 rm -f "$EXTRA_ENV_FILE"
 
 export CERT_PATH KEY_PATH LISTEN_PORT
+# Alpine's nginx package uses /etc/nginx/http.d/ for site configs (unlike
+# the Debian/Ubuntu /etc/nginx/conf.d/ convention) - create it defensively
+# in case the package layout ever changes, and drop its stock default site.
+NGINX_SITE_DIR=/etc/nginx/http.d
+mkdir -p "$NGINX_SITE_DIR"
+rm -f "$NGINX_SITE_DIR/default.conf"
 envsubst '${CERT_PATH} ${KEY_PATH} ${LISTEN_PORT}' \
   < /etc/nginx/templates/default.conf.template \
-  > /etc/nginx/conf.d/default.conf
+  > "$NGINX_SITE_DIR/default.conf"
 
 echo "[skysend-addon] Starting SkySend on 127.0.0.1:${PORT} (internal only)..."
 /usr/local/bin/docker-entrypoint.sh node apps/server/dist/index.js &
