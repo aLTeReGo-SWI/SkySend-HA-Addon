@@ -63,6 +63,40 @@ export DATA_DIR=/data
 # persisted /data volume, without needing an extra volume mapping.
 export UPLOADS_DIR=/data/uploads
 
+# OIDC / SSO (e.g. Microsoft Entra ID). SkySend requires OIDC_ISSUER,
+# OIDC_CLIENT_ID and OIDC_CLIENT_SECRET to all be set together or it refuses
+# to start, so validate that here with a clearer error than SkySend's own.
+OIDC_ENABLED=$(opt '.oidc_enabled' 'false')
+if [ "$OIDC_ENABLED" = "true" ]; then
+  OIDC_PROVIDER=$(opt '.oidc_provider' 'generic')
+  OIDC_ISSUER=$(opt '.oidc_issuer' '')
+  OIDC_CLIENT_ID=$(opt '.oidc_client_id' '')
+  OIDC_CLIENT_SECRET=$(opt '.oidc_client_secret' '')
+  OIDC_PROTECT_FILES=$(opt '.oidc_protect_files' 'true')
+  OIDC_PROTECT_NOTES=$(opt '.oidc_protect_notes' 'true')
+  OIDC_REDIRECT_URI=$(opt '.oidc_redirect_uri' '')
+  OIDC_SESSION_SECRET=$(opt '.oidc_session_secret' '')
+  OIDC_SCOPES=$(opt '.oidc_scopes' 'openid profile email')
+  OIDC_SESSION_DURATION=$(opt '.oidc_session_duration' '86400')
+
+  if [ -z "$OIDC_ISSUER" ] || [ -z "$OIDC_CLIENT_ID" ] || [ -z "$OIDC_CLIENT_SECRET" ]; then
+    echo "[skysend-addon] ERROR: 'oidc_enabled' is true but 'oidc_issuer', 'oidc_client_id' and 'oidc_client_secret' must all be set together." >&2
+    echo "[skysend-addon] See the Configuration tab's OIDC field descriptions (or DOCS.md) for how to create the Entra ID app registration and get these values." >&2
+    exit 1
+  fi
+
+  export OIDC_PROVIDER="$OIDC_PROVIDER"
+  export OIDC_ISSUER="$OIDC_ISSUER"
+  export OIDC_CLIENT_ID="$OIDC_CLIENT_ID"
+  export OIDC_CLIENT_SECRET="$OIDC_CLIENT_SECRET"
+  export OIDC_PROTECT_FILES="$OIDC_PROTECT_FILES"
+  export OIDC_PROTECT_NOTES="$OIDC_PROTECT_NOTES"
+  export OIDC_SCOPES="$OIDC_SCOPES"
+  export OIDC_SESSION_DURATION="$OIDC_SESSION_DURATION"
+  [ -n "$OIDC_REDIRECT_URI" ] && export OIDC_REDIRECT_URI="$OIDC_REDIRECT_URI"
+  [ -n "$OIDC_SESSION_SECRET" ] && export OIDC_SESSION_SECRET="$OIDC_SESSION_SECRET"
+fi
+
 # Pass through any additional raw KEY=VALUE environment variables the user
 # listed under 'extra_env' (e.g. CUSTOM_TITLE=MyShare). Read from a file
 # (not a pipe) so the exports affect this shell, not a subshell.
