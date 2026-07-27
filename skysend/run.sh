@@ -20,7 +20,10 @@ PUID=$(opt '.puid' '1001')
 PGID=$(opt '.pgid' '1001')
 TZ_OPT=$(opt '.tz' 'Etc/UTC')
 FILE_MAX_SIZE=$(opt '.file_max_size' '2GB')
-ENABLED_SERVICES=$(jq -r '(.enabled_services // ["file","note"]) | join(",")' "$CONFIG_PATH")
+ENABLED_SERVICES=$(jq -r '
+  (.enabled_services // ["file","note"]) as $es |
+  if ($es | type) == "array" then ($es | join(",")) else $es end
+' "$CONFIG_PATH")
 
 SSL_DIR=/ssl
 CERT_PATH="${SSL_DIR}/${CERTFILE}"
