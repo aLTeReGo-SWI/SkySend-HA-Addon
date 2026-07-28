@@ -1,6 +1,6 @@
 ---
 name: "SkySend"
-version: "2.11.3"
+version: "2.11.4"
 slug: "skysend"
 description: "End-to-end encrypted, self-hostable file and note sharing service, served over HTTPS using Home Assistant's own SSL certificate"
 url: "https://github.com/Skyfay/SkySend"
